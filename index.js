@@ -112,7 +112,7 @@ class Filter {
 
   filterByType(type, resultObj) {
     // takes an object of filter values, a string denoting filter type, and a result obj to store results in
-    if (!this.isEmpty(resultObj)) {
+    if (!Filter.isEmpty(resultObj)) {
       for (let key in resultObj) {
         if (!this.filters[type].hasOwnProperty(resultObj[key].dataset[type])) {
           delete resultObj[key]
@@ -145,14 +145,14 @@ class Filter {
 
     // start filtering process
     for (let type in this.filters) { // for each type of filter
-      if (!this.isEmpty(this.filters[type])) { //if there is active filters for this filter type
+      if (!Filter.isEmpty(this.filters[type])) { //if there is active filters for this filter type
         this.filterByType(type, result) //calls filterByType with the current filter type object, the type name, and the result object
       }
     }
 
     //render results on page
 
-    if (!this.isEmpty(result)) {// if there are results
+    if (!Filter.isEmpty(result)) {// if there are results
 
       //toHide is an object that contains all items not included in the result object
       const toHide = Array.from(this.__filterItems).reduce((map, obj) => {
