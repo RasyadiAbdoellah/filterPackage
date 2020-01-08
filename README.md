@@ -52,6 +52,8 @@ Note that by default the script uses Bootstrap's `d-none` class to hide and show
 
 
 
-# Under the hood
+# Customization
+
+
 
 
