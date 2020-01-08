@@ -47,32 +47,14 @@ class Filter {
     this._btnTogglerClass = 'active'
     this._hideClass = 'd-none'
     this._itemClass = 'filter-item'
-    this._selectorClass = 'filter-btn'
+    this._btnClass = 'filter-btn'
     this._eventType = 'click'
 
     //filter needs binding because it's called in an event handler.
     this.filter = this.filter.bind(this)
   }
 
-  // SETTERS
-  set filters(val) {
-    this._filters = val
-  }
-  set toggler(val) {
-    this._btnTogglerClass = val
-  }
-  set hide(val) {
-    this._hideClass = val
-  }
-  set item(val) {
-    this._itemClass = val
-  }
-  set selector(val) {
-    this._selectorClass = val
-  }
-  set eventType(val) {
-    this._eventType = val
-  }
+
 
 
   // GETTERS
@@ -82,23 +64,43 @@ class Filter {
   get toggler() {
     return this._btnTogglerClass
   }
-  get hide() {
+  get hider() {
     return this._hideClass
   }
-  get item() {
+  get itemClass() {
     return this._itemClass
   }
   get selector() {
-    return this._selectorClass
+    return this._btnClass
   }
   get eventType() {
     return this._eventType
   }
 
+  // SETTERS
+  setFilters(val) {
+    this._filters = val
+  }
+  setToggler(val) {
+    this._btnTogglerClass = val
+  }
+  setHider(val) {
+    this._hideClass = val
+  }
+  setItemClass(val) {
+    this._itemClass = val
+  }
+  setSelector(val) {
+    this._btnClass = val
+  }
+  setEventType(val) {
+    this._eventType = val
+  }
+
 
 
   // UTILITY FUNCTIONS
-  static isEmpty (obj) {
+  static isEmpty(obj) {
     //Utility function to check if anything is empty
     for (let prop in obj) {
       if (obj.hasOwnProperty(prop)) {
@@ -162,15 +164,15 @@ class Filter {
 
       //apply d-none to all html elements in toHide object
       for (let key in toHide) {
-        toHide[key].classList.add(this.hide)
+        toHide[key].classList.add(this.hider)
       }
 
       //remove d-none to all html elements in result object
       for (let key in result) {
-        result[key].classList.remove(this.hide)
+        result[key].classList.remove(this.hider)
       }
     } else { //if result is empty, show all
-      this.__filterItems.forEach(item => item.classList.remove(this.hide))
+      this.__filterItems.forEach(item => item.classList.remove(this.hider))
     }
     console.log(result)
     console.log(this.filters)
@@ -179,7 +181,7 @@ class Filter {
 
   init() {
     //calling init creates a list of items to filter and attaches click handlers to each filter btn
-    this.__filterItems = document.querySelectorAll(`.${this.item}`)
+    this.__filterItems = document.querySelectorAll(`.${this.itemClass}`)
     //assigns keys to each item based on their index for easy referencing
     this.__filterItems.forEach((item, index) => {
       item.dataset['key'] = index
