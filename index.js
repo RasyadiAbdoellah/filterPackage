@@ -8,11 +8,19 @@ class Filter {
     this._btnClass = 'filter-btn'
     this._eventType = 'click'
 
-    //filter needs binding because it's called in an event handler.
+    //filter this is binded because it's called in an event handler.
     this.filter = this.filter.bind(this)
   }
 
-
+  static isEmpty(obj) {
+    //Utility function to check if an object is empty
+    for (let prop in obj) {
+      if (obj.hasOwnProperty(prop)) {
+        return false;
+      }
+    }
+    return JSON.stringify(obj) === JSON.stringify({});
+  }
 
 
   // GETTERS
@@ -55,21 +63,8 @@ class Filter {
     this._eventType = val
   }
 
-
-
-  // UTILITY FUNCTIONS
-  static isEmpty(obj) {
-    //Utility function to check if anything is empty
-    for (let prop in obj) {
-      if (obj.hasOwnProperty(prop)) {
-        return false;
-      }
-    }
-    return JSON.stringify(obj) === JSON.stringify({});
-  }
-
   filterByType(type, resultObj) {
-    // takes an object of filter values, a string denoting filter type, and a result obj to store results in
+    // takes a string denoting filter type, and a result obj to store results in
     if (!Filter.isEmpty(resultObj)) {
       for (let key in resultObj) {
         if (!this.filters[type].hasOwnProperty(resultObj[key].dataset[type])) {
@@ -88,12 +83,13 @@ class Filter {
   }
 
   filter(event) {
+    //handler that is called on filter event
     const result = {}
     const el = event.target
-    const { filter, value } = el.dataset //type of filter and the filter value
-    el.classList.toggle(this.toggler) //toggle active class
+    const { filter, value } = el.dataset
 
 
+    el.classList.toggle(this.toggler)
     //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
     if (el.classList.contains(this.toggler)) {
       this.filters[filter][value] = true
@@ -102,17 +98,14 @@ class Filter {
     }
 
     // start filtering process
-    for (let type in this.filters) { // for each type of filter
-      if (!Filter.isEmpty(this.filters[type])) { //if there is active filters for this filter type
-        this.filterByType(type, result) //calls filterByType with the current filter type object, the type name, and the result object
+    for (let type in this.filters) {
+      if (!Filter.isEmpty(this.filters[type])) {
+        this.filterByType(type, result)
       }
     }
 
     //render results on page
-
-    if (!Filter.isEmpty(result)) {// if there are results
-
-      //toHide is an object that contains all items not included in the result object
+    if (!Filter.isEmpty(result)) {
       const toHide = Array.from(this.__filterItems).reduce((map, obj) => {
         if (!result.hasOwnProperty(obj.dataset.key)) {
           map[obj.dataset.key] = obj
@@ -120,33 +113,29 @@ class Filter {
         return map
       }, {})
 
-      //apply d-none to all html elements in toHide object
+      //Add and remove hider class to corresponding elements
       for (let key in toHide) {
         toHide[key].classList.add(this.hider)
       }
-
-      //remove d-none to all html elements in result object
       for (let key in result) {
         result[key].classList.remove(this.hider)
       }
-    } else { //if result is empty, show all
+    } else {
       this.__filterItems.forEach(item => item.classList.remove(this.hider))
     }
-    console.log(result)
-    console.log(this.filters)
   }
 
 
   init() {
-    //calling init creates a list of items to filter and attaches click handlers to each filter btn
+    // create a local list of items to filter
     this.__filterItems = document.querySelectorAll(`.${this.itemClass}`)
-    //assigns keys to each item based on their index for easy referencing
+    // adds keys to items for easier referencing
     this.__filterItems.forEach((item, index) => {
       item.dataset['key'] = index
     })
 
 
-    //filter logic is run every time the user clicks a filter btn
+    //add listener to filter interface. filter logic is run every time the user triggers a filter event
     document.body.querySelectorAll(`.${this.selector}`).forEach(btn => {
       btn.addEventListener(this.eventType, this.filter, false)
     })
