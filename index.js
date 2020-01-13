@@ -7,12 +7,13 @@ class Filter {
     this._itemClass = 'filter-item'
     this._btnClass = 'filter-btn'
     this._eventType = 'click'
-
-    //filter this is binded because it's called in an event handler.
+    this._filterMap = {}
+    //this is binded because below methods are called in an event handler.
     this.filter = this.filter.bind(this)
+    this.reset = this.reset.bind(this)
   }
 
-  static isEmpty(obj) {
+  static isEmptyObj(obj) {
     //Utility function to check if an object is empty
     for (let prop in obj) {
       if (obj.hasOwnProperty(prop)) {
@@ -22,6 +23,9 @@ class Filter {
     return JSON.stringify(obj) === JSON.stringify({});
   }
 
+  static isEqualObj(obj1, obj2) {
+    return JSON.stringify(obj1) == JSON.stringify(obj2)
+  }
 
   // GETTERS
   get filters() {
@@ -41,6 +45,9 @@ class Filter {
   }
   get eventType() {
     return this._eventType
+  }
+  get filterMap() {
+    return this._filterMap
   }
 
   // SETTERS
@@ -65,7 +72,7 @@ class Filter {
 
   filterByType(type, resultObj) {
     // takes a string denoting filter type, and a result obj to store results in
-    if (!Filter.isEmpty(resultObj)) {
+    if (!Filter.isEmptyObj(resultObj)) {
       for (let key in resultObj) {
         if (!this.filters[type].hasOwnProperty(resultObj[key].dataset[type])) {
           delete resultObj[key]
@@ -88,24 +95,32 @@ class Filter {
     const el = event.target
     const { filter, value } = el.dataset
 
-
-    el.classList.toggle(this.toggler)
-    //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
-    if (el.classList.contains(this.toggler)) {
-      this.filters[filter][value] = true
+    if (value && value !== 'reset') {
+      el.classList.toggle(this.toggler)
+      //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
+      if (el.classList.contains(this.toggler)) {
+        this.filters[filter][value] = true
+        if (Filter.isEqualObj(this.filters[filter], this.filterMap[filter])) {
+          this.reset(el)
+          this.filters[filter] = {}
+        }
+      } else {
+        delete this.filters[filter][value]
+      }
     } else {
-      delete this.filters[filter][value]
+      this.reset(el)
+      this.filters[filter] = {}
     }
 
     // start filtering process
     for (let type in this.filters) {
-      if (!Filter.isEmpty(this.filters[type])) {
+      if (!Filter.isEmptyObj(this.filters[type])) {
         this.filterByType(type, result)
       }
     }
 
     //render results on page
-    if (!Filter.isEmpty(result)) {
+    if (!Filter.isEmptyObj(result)) {
       const toHide = Array.from(this.__filterItems).reduce((map, obj) => {
         if (!result.hasOwnProperty(obj.dataset.key)) {
           map[obj.dataset.key] = obj
@@ -125,6 +140,13 @@ class Filter {
     }
   }
 
+  reset(el) {
+    el = el.parentNode.firstElementChild
+    do {
+      el.classList.remove('active')
+    } while (el = el.nextElementSibling)
+  }
+
 
   init() {
     // create a local list of items to filter
@@ -133,7 +155,14 @@ class Filter {
     this.__filterItems.forEach((item, index) => {
       item.dataset['key'] = index
     })
-
+    this._filterMap = (() => {
+      const result = JSON.parse(JSON.stringify(this.filters))
+      const filterBtn = document.querySelectorAll(`.${this._btnClass}`)
+      filterBtn.forEach(item => {
+        if (item.dataset.value !== 'reset') result[item.dataset.filter][item.dataset.value] = true;
+      })
+      return result
+    })()
 
     //add listener to filter interface. filter logic is run every time the user triggers a filter event
     document.body.querySelectorAll(`.${this.selector}`).forEach(btn => {
