@@ -19,7 +19,7 @@
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="1">day 1</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="2">day 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="3">day 3</button>
-    <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="reset">reset</button>
+    <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="reset">reset all</button>
   </div>
 
   <div class="btn-group" role="group" aria-label="topic filter">
@@ -35,8 +35,10 @@
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="2">category 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="3">category 3</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="reset">reset</button>
-
   </div>
+
+  <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="reset">reset all</button>
+
 
   <div class="row">
     <div class="col filter-item" data-day="1" data-topic="1" data-category="2">
@@ -72,7 +74,7 @@
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
 
-  <script src="./index.js"></script>
+  <script src="https://github.com/RasyadiAbdoellah/filterPackage/blob/master/index.js"></script>
   <script>
     const itemFilter = new Filter({ day: {}, topic: {}, category: {} })
 

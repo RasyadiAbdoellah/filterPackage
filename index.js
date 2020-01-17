@@ -1,13 +1,14 @@
 class Filter {
   constructor(initial = {}) {
     this.__filterItems = []
+    this.__startingState = JSON.parse(JSON.stringify(initial))
+    this.__filterMap = JSON.parse(JSON.stringify(initial)) //deep copy initial
     this._filters = initial
     this._btnTogglerClass = 'active'
     this._hideClass = 'd-none'
     this._itemClass = 'filter-item'
     this._btnClass = 'filter-btn'
     this._eventType = 'click'
-    this._filterMap = {}
     //this is binded because below methods are called in an event handler.
     this.filter = this.filter.bind(this)
     this.reset = this.reset.bind(this)
@@ -31,6 +32,9 @@ class Filter {
   get filters() {
     return this._filters
   }
+  get startingState() {
+    return this.__startingState
+  }
   get toggler() {
     return this._btnTogglerClass
   }
@@ -45,9 +49,6 @@ class Filter {
   }
   get eventType() {
     return this._eventType
-  }
-  get filterMap() {
-    return this._filterMap
   }
 
   // SETTERS
@@ -100,10 +101,10 @@ class Filter {
       //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
       if (el.classList.contains(this.toggler)) {
         this.filters[filter][value] = true
-        if (Filter.isEqualObj(this.filters[filter], this.filterMap[filter])) {
-          this.reset(el)
-          this.filters[filter] = {}
-        }
+        // if (Filter.isEqualObj(this.filters[filter], this.__filterMap[filter])) {
+        //   this.reset(el)
+        //   this.filters[filter] = {}
+        // }
       } else {
         delete this.filters[filter][value]
       }
@@ -140,11 +141,21 @@ class Filter {
     }
   }
 
-  reset(el) {
-    el = el.parentNode.firstElementChild
-    do {
-      el.classList.remove('active')
-    } while (el = el.nextElementSibling)
+  setReset(type) {
+    if (type === "all") {
+      this.reset = (el) => {
+        document.querySelectorAll(`.${this.selector} .${this.toggler}`).forEach(el => el.classList.remove(`.${this.toggler}`))
+        this.filters = JSON.parse(JSON.stringify(this.startingState))
+      }
+    } else if (type === 'filter') {
+      this.reset = (el) => {
+        el = el.parentNode.firstElementChild
+        do {
+          el.classList.remove(`.${this.toggler}`)
+        } while (el = el.nextElementSibling)
+      }
+    }
+
   }
 
 
@@ -155,18 +166,17 @@ class Filter {
     this.__filterItems.forEach((item, index) => {
       item.dataset['key'] = index
     })
-    this._filterMap = (() => {
-      const result = JSON.parse(JSON.stringify(this.filters))
-      const filterBtn = document.querySelectorAll(`.${this._btnClass}`)
-      filterBtn.forEach(item => {
-        if (item.dataset.value !== 'reset') result[item.dataset.filter][item.dataset.value] = true;
-      })
-      return result
-    })()
+    //sets the reset function
+    this.setReset('all')
+
+    document.querySelectorAll(`.${this._btnClass}`).forEach(item => {
+      if (item.dataset.value !== 'reset') this.__filterMap[item.dataset.filter][item.dataset.value] = true;
+    })
 
     //add listener to filter interface. filter logic is run every time the user triggers a filter event
     document.body.querySelectorAll(`.${this.selector}`).forEach(btn => {
       btn.addEventListener(this.eventType, this.filter, false)
     })
+
   }
 }
