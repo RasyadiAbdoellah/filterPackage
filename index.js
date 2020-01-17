@@ -12,6 +12,9 @@ class Filter {
     //this is binded because below methods are called in an event handler.
     this.filter = this.filter.bind(this)
     this.reset = this.reset.bind(this)
+
+    //points to original reset func
+    this.defaultReset = this.reset
   }
 
   static isEmptyObj(obj) {
@@ -140,22 +143,24 @@ class Filter {
       this.__filterItems.forEach(item => item.classList.remove(this.hider))
     }
   }
+  reset(e) {
+    document.querySelectorAll(`.${this.selector}.${this.toggler}`).forEach(el => el.classList.remove(this.toggler))
+    this._filters = JSON.parse(JSON.stringify(this.startingState))
+  }
+
+  _altReset = (el) => {
+    el = el.parentNode.firstElementChild
+    do {
+      el.classList.remove(`.${this.toggler}`)
+    } while (el = el.nextElementSibling)
+  }
 
   setReset(type) {
     if (type === "all") {
-      this.reset = (el) => {
-        document.querySelectorAll(`.${this.selector} .${this.toggler}`).forEach(el => el.classList.remove(`.${this.toggler}`))
-        this.filters = JSON.parse(JSON.stringify(this.startingState))
-      }
+      this.reset = this.defaultReset
     } else if (type === 'filter') {
-      this.reset = (el) => {
-        el = el.parentNode.firstElementChild
-        do {
-          el.classList.remove(`.${this.toggler}`)
-        } while (el = el.nextElementSibling)
-      }
+      this.reset = this._altReset
     }
-
   }
 
 
@@ -166,6 +171,7 @@ class Filter {
     this.__filterItems.forEach((item, index) => {
       item.dataset['key'] = index
     })
+
     //sets the reset function
     this.setReset('all')
 
