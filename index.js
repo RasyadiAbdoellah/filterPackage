@@ -1,7 +1,8 @@
 class Filter {
   constructor(initial = {}) {
     this.__filterItems = []
-    this.__startingState = JSON.parse(JSON.stringify(initial))
+    this.__initialState = JSON.parse(JSON.stringify(initial))
+    this.__startingActive = null
     this.__filterMap = JSON.parse(JSON.stringify(initial)) //deep copy initial
     this._filters = initial
     this._btnTogglerClass = 'active'
@@ -9,12 +10,11 @@ class Filter {
     this._itemClass = 'filter-item'
     this._btnClass = 'filter-btn'
     this._eventType = 'click'
+    this._isAdditive = true
     //this is binded because below methods are called in an event handler.
     this.filter = this.filter.bind(this)
-    this.reset = this.reset.bind(this)
-
-    //points to original reset func
-    this.defaultReset = this.reset
+    this.resetAll = this.resetAll.bind(this)
+    this.resetOne = this.resetOne.bind(this)
   }
 
   static isEmptyObj(obj) {
@@ -35,8 +35,8 @@ class Filter {
   get filters() {
     return this._filters
   }
-  get startingState() {
-    return this.__startingState
+  get initialState() {
+    return this.__initialState
   }
   get toggler() {
     return this._btnTogglerClass
@@ -74,6 +74,14 @@ class Filter {
     this._eventType = val
   }
 
+  setAdditive() {
+    this._isAdditive = true
+  }
+
+  setSubtractive() {
+    this._isAdditive = false
+  }
+
   filterByType(type, resultObj) {
     // takes a string denoting filter type, and a result obj to store results in
     if (!Filter.isEmptyObj(resultObj)) {
@@ -97,34 +105,52 @@ class Filter {
     //handler that is called on filter event
     const result = {}
     const el = event.target
-    const { filter, value } = el.dataset
+    const { filter, value, reset = false } = el.dataset
+    let hasFilters = false
 
-    if (value && value !== 'reset') {
-      el.classList.toggle(this.toggler)
+    //TODO - see if conditional logic can be tidied up
+    //TODO - consider renaming resetFilter to something that contextually makes better sense
+    if (!reset) { //if not a reset button
+      el.classList.toggle(this.toggler) //toggle active class
+
       //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
       if (el.classList.contains(this.toggler)) {
-        this.filters[filter][value] = true
-        // if (Filter.isEqualObj(this.filters[filter], this.__filterMap[filter])) {
-        //   this.reset(el)
-        //   this.filters[filter] = {}
-        // }
+        this.filters[filter][value] = true //add value to filter obj
+        document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.remove(`${this.toggler}`)//remove active from reset button
+
+        //current behaviour assumes that all filters on = resetting the filter to show all. This also assumes that if there is a local reset button it is used as the show all button
+        if (this._isAdditive && Filter.isEqualObj(this.filters[filter], this.__filterMap[filter])) {
+          this.resetOne(el)
+          // set the reset button (used as a show all) to active
+          document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.add(`${this.toggler}`)
+        }
       } else {
         delete this.filters[filter][value]
       }
     } else {
-      this.reset(el)
-      this.filters[filter] = {}
+      if (reset === 'all') {
+
+        //if reset is a reset all, revert to starting button state
+        this.resetAll()
+        this.__startingActive.forEach(item => item.classList.add(`${this.toggler}`))
+      }
+      else if (reset === 'filter') {
+        //again, this assumes the filter reset is a show all button
+        this.resetOne(el)
+        if (this._AdditiveFilter) el.classList.add(`${this.toggler}`);
+      }
     }
 
     // start filtering process
     for (let type in this.filters) {
       if (!Filter.isEmptyObj(this.filters[type])) {
+        hasFilters = true
         this.filterByType(type, result)
       }
     }
 
     //render results on page
-    if (!Filter.isEmptyObj(result)) {
+    if (!Filter.isEmptyObj(result) || hasFilters) {
       const toHide = Array.from(this.__filterItems).reduce((map, obj) => {
         if (!result.hasOwnProperty(obj.dataset.key)) {
           map[obj.dataset.key] = obj
@@ -143,26 +169,21 @@ class Filter {
       this.__filterItems.forEach(item => item.classList.remove(this.hider))
     }
   }
-  reset(e) {
+
+  resetAll(e) {
     document.querySelectorAll(`.${this.selector}.${this.toggler}`).forEach(el => el.classList.remove(this.toggler))
-    this._filters = JSON.parse(JSON.stringify(this.startingState))
+    this._filters = JSON.parse(JSON.stringify(this.initialState))
   }
 
-  _altReset = (el) => {
-    el = el.parentNode.firstElementChild
+  resetOne(el) {
+    if (!el.dataset.filter) return Error('filter attribute must be set');
+
+    this._filters[el.dataset.filter] = {}
+    el = document.querySelector(`[data-filter="${el.dataset.filter}"]`).parentNode.firstElementChild
     do {
-      el.classList.remove(`.${this.toggler}`)
+      el.classList.remove(`${this.toggler}`)
     } while (el = el.nextElementSibling)
   }
-
-  setReset(type) {
-    if (type === "all") {
-      this.reset = this.defaultReset
-    } else if (type === 'filter') {
-      this.reset = this._altReset
-    }
-  }
-
 
   init() {
     // create a local list of items to filter
@@ -172,12 +193,14 @@ class Filter {
       item.dataset['key'] = index
     })
 
-    //sets the reset function
-    this.setReset('all')
 
+    //build a map of all filters
     document.querySelectorAll(`.${this._btnClass}`).forEach(item => {
-      if (item.dataset.value !== 'reset') this.__filterMap[item.dataset.filter][item.dataset.value] = true;
+      if (!item.dataset.reset) this.__filterMap[item.dataset.filter][item.dataset.value] = true;
     })
+
+    //build the initial button states
+    this.__startingActive = document.querySelectorAll(`.${this._btnClass}.${this._btnTogglerClass}`)
 
     //add listener to filter interface. filter logic is run every time the user triggers a filter event
     document.body.querySelectorAll(`.${this.selector}`).forEach(btn => {

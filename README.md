@@ -41,6 +41,11 @@ and hide any element with a `filter-item` class but does not match the button's 
 
 the value of data-[value name] is arbitrary, as long as data-value in the button element has a corresponding value in the filtered element. 
 
+Note that by default the script uses Bootstrap's `d-none` class to hide and show elements, and Bootstrap's `active` class to show which filters are currently active. The class names can be changed using setters mentioned in the ***Customization*** section.
+
+
+# Basic Usage
+
 The example usage below is the bare minimum required to get it working:
 ```html
 
@@ -61,8 +66,52 @@ const filter = new Filter({type: {}}) //property name matches data attribute nam
 filter.init()
 ```
 
-Note that by default the script uses Bootstrap's `d-none` class to hide and show elements, and Bootstrap's `active` class to show which filters are currently active. Setters can change the classes used.
+## Reset buttons
 
+Filter reset functions can be accessed by adding a button with a `data-reset` attribute set to either `all` or `filter`. If targeting a filter group, a `data-filter` attribute that corresponds to a filter type must be attached to the reset button.
+
+For example to add a reset for a particular filter group...
+```html
+<div>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-1'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-2'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-3'>filter value</button>
+<!-- The reset button below will reset the values for only this filter group-->
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-reset='filter'>reset filter group</button>
+</div>
+```
+The filter reset button doesn't have to be placed in the same button group, as it finds the elements by its data attribute.
+```html
+<div>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-1'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-2'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-value='value-3'>filter value</button>
+</div>
+
+<!-- The reset button below will also reset the values for only the corresponding filter group-->
+  <button class="btn button-outline-primary filter-btn" data-filter='type' data-reset='filter'>reset filter group</button>
+```
+
+
+To add a global reset button...
+
+```html
+<div>
+  <button class="btn button-outline-primary filter-btn" data-filter='x' data-value='value-1'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='x' data-value='value-2'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='x' data-value='value-3'>filter value</button>
+</div>
+
+<div>
+  <button class="btn button-outline-primary filter-btn" data-filter='y' data-value='value-1'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='y' data-value='value-2'>filter value</button>
+  <button class="btn button-outline-primary filter-btn" data-filter='y' data-value='value-3'>filter value</button>
+</div>
+
+<!-- The reset button below will reset the values for all filter groups-->
+  <button class="btn button-outline-primary filter-btn" data-reset='all'>reset all</button>
+
+```
 
 # Customization
 
@@ -80,10 +129,6 @@ filter.setSelector('new filter button class')//default: filter-btn
 
 //only click is currently supported
 filter.setEventType('set a different event handler')//default: click
-
-//additionally you can change the way reset() works
-filter.setReset('all') //sets the reset func to reset all filters
-filter.setReset('filter') //sets the reset func to reset individual filter button groups
 ```
 
 

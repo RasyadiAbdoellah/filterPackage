@@ -19,14 +19,14 @@
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="1">day 1</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="2">day 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="3">day 3</button>
-    <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="reset">reset all</button>
+    <button class="btn btn-outline-primary filter-btn" data-reset='all'>reset all</button>
   </div>
 
   <div class="btn-group" role="group" aria-label="topic filter">
     <button class="btn btn-outline-primary filter-btn" data-filter="topic" data-value="1">topic 1</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="topic" data-value="2">topic 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="topic" data-value="3">topic 3</button>
-    <button class="btn btn-outline-primary filter-btn" data-filter="topic" data-value="reset">reset</button>
+    <button class="btn btn-outline-primary filter-btn active" data-filter="topic" data-reset="filter">reset</button>
 
   </div>
 
@@ -34,10 +34,12 @@
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="1">category 1</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="2">category 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="3">category 3</button>
-    <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="reset">reset</button>
+    <button class="btn btn-outline-primary filter-btn active" data-filter="category" data-reset="filter">reset</button>
   </div>
 
-  <button class="btn btn-outline-primary filter-btn" data-filter="category" data-value="reset">reset all</button>
+  <button class="btn btn-outline-primary filter-btn" data-reset="all">reset all</button>
+  <button class="btn btn-outline-primary filter-btn active" data-filter="day" data-reset="filter">reset day</button>
+
 
 
   <div class="row">
@@ -74,12 +76,13 @@
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
 
-  <script src="https://cdn.jsdelivr.net/gh/RasyadiAbdoellah/filterPackage/index.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/gh/RasyadiAbdoellah/filterPackage/index.js"></script> -->
+  <script src='index.js'></script>
   <script>
     const itemFilter = new Filter({ day: {}, topic: {}, category: {} })
 
-    itemFilter.hide = 'text-danger'
     itemFilter.init()
+    itemFilter.setShowAll(false)
   </script>
 
 
