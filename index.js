@@ -129,7 +129,6 @@ class Filter {
 
       //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
       if (el.classList.contains(this.toggler)) {
-        console.log('active')
         this.filters[filter][value] = true //add value to filter obj
         document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.remove(`${this.toggler}`)//remove active from reset button
 
@@ -140,8 +139,6 @@ class Filter {
           // set the reset button (used as a show all) to active
           document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.add(`${this.toggler}`)
         }
-
-        console.log(this)
       } else {
         delete this.filters[filter][value]
       }
