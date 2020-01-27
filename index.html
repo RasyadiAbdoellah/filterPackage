@@ -15,7 +15,7 @@
 <body>
   <h1>This is a sandbox</h1>
 
-  <div class="btn-group" role="group" aria-label="day filter">
+  <div class="btn-group" role="group" aria-label="day filter" data-filter-type="exclusive">
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="1">day 1</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="2">day 2</button>
     <button class="btn btn-outline-primary filter-btn" data-filter="day" data-value="3">day 3</button>
@@ -72,6 +72,7 @@
     </div>
   </div>
 
+
   <!-- Optional JavaScript -->
   <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 
@@ -80,9 +81,7 @@
   <script src='index.js'></script>
   <script>
     const itemFilter = new Filter({ day: {}, topic: {}, category: {} })
-
     itemFilter.init()
-    itemFilter.setShowAll(false)
   </script>
 
 
