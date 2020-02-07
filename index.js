@@ -130,14 +130,14 @@ class Filter {
       //check for active class on current element after .toggle() is called. if active, adds element data to filters object. if false, removes data 
       if (el.classList.contains(this.toggler)) {
         this.filters[filter][value] = true //add value to filter obj
-        document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.remove(`${this.toggler}`)//remove active from reset button
+        document.querySelector(`.${this._btnClass}[data-filter=${filter}][data-reset="filter"]`).classList.remove(`${this.toggler}`)//remove active from reset button
 
         //current behaviour assumes that all filters on = resetting the filter to show all. This also assumes that if there is a local reset button it is used as the show all button
         if ((this._isAdditive || (parent.dataset && parent.dataset.filterType === 'additive')) && Filter.isEqualObj(this.filters[filter], this.__filterMap[filter])) {
           this.resetFilter(el)
           this.resetFilterGrpUi(el)
           // set the reset button (used as a show all) to active
-          document.querySelector(`[data-filter=${filter}][data-reset="filter"]`).classList.add(`${this.toggler}`)
+          document.querySelector(`.${this._btnClass}[data-filter=${filter}][data-reset="filter"]`).classList.add(`${this.toggler}`)
         }
       } else {
         delete this.filters[filter][value]
@@ -191,7 +191,7 @@ class Filter {
   }
 
   resetFilterGrpUi(el) {
-    el = document.querySelector(`[data-filter="${el.dataset.filter}"]`).parentNode.firstElementChild
+    el = document.querySelector(`.${this.selector}[data-filter="${el.dataset.filter}"]`).parentNode.firstElementChild
     do {
       el.classList.remove(`${this.toggler}`)
     } while (el = el.nextElementSibling)
